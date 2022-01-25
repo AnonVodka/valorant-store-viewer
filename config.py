@@ -29,7 +29,7 @@ class Config:
             self.username = config.get("username")
             self.password = config.get("password")
             self.discord_token = config.get("discord_token")
-            self.enc_key = config.get("encryption_key")
+            self.encryption_key = config.get("encryption_key")
             self.dumpDataToFile = config.get("dumpDataToFile")
 
     def config_dialog(self, configFile: TextIOWrapper, inDiscordMode=False):

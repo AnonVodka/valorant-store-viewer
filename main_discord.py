@@ -6,8 +6,6 @@ import cryptocode as crypt
 import valorant
 from config import Config
 
-cfg = None
-
 # https://stackoverflow.com/a/5125636
 def safe_list_get(l, idx):
     try:
@@ -23,7 +21,7 @@ async def save_credentials_to_file(region, username, password):
     # open credentials file and parse content
     with open("credentials.dat", "r") as f:
         content = f.read() # read file content
-        content = crypt.decrypt(content, cfg.enc_key) # decrypt using encryption key
+        content = crypt.decrypt(content, cfg.encryption_key) # decrypt using encryption key
         content = json.loads(content) # parse content as json
         f.close() # close file
 
@@ -45,7 +43,7 @@ async def save_credentials_to_file(region, username, password):
 
     # save the table to the credentials file
     with open("credentials.dat", "w") as f:
-        enc = crypt.encrypt(json.dumps(content), cfg.enc_key) # encrypt our credentials with our encryption key
+        enc = crypt.encrypt(json.dumps(content), cfg.encryption_key) # encrypt our credentials with our encryption key
         f.write(enc) # and save to file
         f.close() # close the file
     
@@ -54,14 +52,14 @@ async def save_credentials_to_file(region, username, password):
 async def get_saved_credentials(hash):
     with open("credentials.dat", "r") as f:
         content = f.read() # read file content
-        content = crypt.decrypt(content, cfg.enc_key) # decrypt using encryption key
+        content = crypt.decrypt(content, cfg.encryption_key) # decrypt using encryption key
         content = json.loads(content) # parse content as json
         f.close() # close file
     return content.get(hash) # return credentials or None if not found
 
 async def run(send, region, username, password):
 
-    data = await valorant.run(region, username, password, cfg.get("dumpDataToFile"))
+    data = await valorant.run(region, username, password, cfg.dumpDataToFile)
 
     status = data[0]
 
@@ -167,11 +165,12 @@ class Client(discord.Client):
 def main():
 
     # create or read config file for discord mode
+    global cfg
     cfg = Config(True)
 
     token = cfg.discord_token
 
-    if token == "SET_ME" or cfg.enc_key == "SET_ME":
+    if token == "SET_ME" or cfg.encryption_key == "SET_ME":
         print("You tried to use the discord bot without setting the token or the encryption key!")
         input("\npress enter to exit..")
         os._exit(1)
@@ -181,7 +180,7 @@ def main():
     if not os.path.isfile(f"{os.getcwd()}/credentials.dat"):
         with open("credentials.dat", "w+") as f:
             s = json.dumps({})
-            encr = crypt.encrypt(s, cfg.enc_key)
+            encr = crypt.encrypt(s, cfg.encryption_key)
             f.write(encr)
             f.close()
 
