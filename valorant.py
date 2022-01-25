@@ -15,7 +15,7 @@ TIME_PATTERN = re.compile("(\d+)")
 
 async def login(session, username, password):
     """
-    log in into the api and return tokens??
+    authorize with api and return auth tokens
     """
 
     data = {
@@ -26,12 +26,18 @@ async def login(session, username, password):
     }
     r = session.post("https://auth.riotgames.com/api/v1/authorization", json=data)
 
+    if r.status_code != 200:
+        return ["error", f"authorization request couldn't be validated, status code: {r.status_code}"]
+
     data = {
         "type": "auth",
         "username": username,
         "password": password
     }
     r = session.put("https://auth.riotgames.com/api/v1/authorization", json=data)
+
+    if r.status_code != 200:
+        return ["error", f"authorization request couldn't be validated, status code: {r.status_code}"]
 
     r = r.json()
 
@@ -45,6 +51,7 @@ async def login(session, username, password):
         "Authorization": f"Bearer {auth_token}",
     }
     r = session.post("https://entitlements.auth.riotgames.com/api/token/v1", headers=headers, json={})
+
     ent_token = r.json()["entitlements_token"]
 
     r = session.post("https://auth.riotgames.com/userinfo", headers=headers, json={})

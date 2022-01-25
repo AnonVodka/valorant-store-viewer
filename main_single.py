@@ -21,7 +21,7 @@ async def main(region=None, username=None, password=None):
     status = data[0]
 
     if status == "error":
-        await print(f"An error happened when trying to check your store:\n\t{data[1]}")
+        print(f"An error happened when trying to check your store:\n\t{data[1]}\n")
 
     elif status == "ok":
         offers = data[1][0]
